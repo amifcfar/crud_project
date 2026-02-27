@@ -1,6 +1,12 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException,Request
+
+from fastapi.templating import Jinja2Templates
 
 from pydantic import BaseModel
+
+#templating object
+
+templates = Jinja2Templates(directory="templates")
 
 class Item(BaseModel):
 
@@ -14,6 +20,8 @@ class Item(BaseModel):
 app = FastAPI()
 
 inventory = []
+
+template_test = ["nike", "puma", "adidas"]
 
 inv_test = [{"title": "puma", "description": "tout terrain", "price": 1000, "quantity": 50, "item_id": 1}, {"title": "nike", "description": "puissant", "price": 2000, "quantity": 20, "item_id": 2}]
 
@@ -100,5 +108,11 @@ async def remove_item_by_id(item_id: int):
                 inv_test.remove(item)
                 return {"message": "The item was successfully removed"}
     return {"message": "the item was not found in the inventory-------------"}
+
+
+@app.get("/api/v2/items/")
+async def get_items_api(request: Request):
+    return templates.TemplateResponse(request = request, name= "items/items.html", context = {"template_test": template_test})
+
 
 
