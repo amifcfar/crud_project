@@ -1,12 +1,18 @@
-from fastapi import FastAPI, HTTPException,Request
+from fastapi import FastAPI, HTTPException,Request,Form
+
+from typing import Annotated
 
 from fastapi.templating import Jinja2Templates
+
+from fastapi.responses import RedirectResponse, HTMLResponse
 
 from pydantic import BaseModel
 
 #templating object
 
 templates = Jinja2Templates(directory="templates")
+
+
 
 class Item(BaseModel):
 
@@ -21,7 +27,9 @@ app = FastAPI()
 
 inventory = []
 
-template_test = ["nike", "puma", "adidas"]
+tem_item_id = 1
+
+template_test = [{"title": "nike", "description": "puissant", "price": 2000, "quantity": 20, "item_id": 1}]
 
 inv_test = [{"title": "puma", "description": "tout terrain", "price": 1000, "quantity": 50, "item_id": 1}, {"title": "nike", "description": "puissant", "price": 2000, "quantity": 20, "item_id": 2}]
 
@@ -113,6 +121,35 @@ async def remove_item_by_id(item_id: int):
 @app.get("/api/v2/items/")
 async def get_items_api(request: Request):
     return templates.TemplateResponse(request = request, name= "items/items.html", context = {"template_test": template_test})
+
+
+@app.get("/api/v2/items/add/")
+async def add_item_api(request: Request):
+    print("---------------In add_item_api-------------")
+    return templates.TemplateResponse(request = request, name= "items/add_item.html", context = {"template_test": template_test})
+@app.post("/api/v2/items/save/")
+async def save_item_api(request: Request, name: str =Form() , price: str = Form() , description: str = Form() , quantity: int = Form() ):
+
+    print("---------------In save_item_api-------------")
+    if request.method == "POST":
+        try:
+            print(f"the request method is {request.method}")
+            print(f"----------the item name is : {name}")
+            print(f"----------the item price is : {price}")
+            print(f"----------the item description is : {description}")
+            print(f"----------the item quantity is : {quantity}")
+        except :
+            return {"message": "Error with the form data"}
+        #save the newly added item to the inventory
+       # template_test.append(dict(title=name, description=description, price=price, quantity=quantity, item_id = tem_item_id))
+    return RedirectResponse("/api/v2/items/", status_code=303)
+
+
+
+
+
+
+
 
 
 
