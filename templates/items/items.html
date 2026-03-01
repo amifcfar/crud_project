@@ -10,13 +10,19 @@
     <div style="align-content: center">
         <h2>Products</h2>
         {% for item in template_test %}
-            <li><h3>item name : {{ item["title"] }}  </h3></li>
+            <li><h3>item name : {{ item["title"] }} </h3> </li>
             <li><h3>item price: {{ item["price"] }}</h3></li>
             <li><h3>item description: {{ item["description"] }} </h3></li>
             <li><h3>item quantity: {{ item["quantity"] }}</h3></li>
+            {% with item_id = item["item_id"] %}
+                <a href="{{ url_for( 'update_item_api', item_id = item_id ) }}" >edit product </a>
+            {% endwith %}
         {% endfor %}
 
         <a href="{{ url_for( 'add_item_api' ) }}">add item </a>
+
+
+
 
     </div>
 

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+  {% with title = item["title"] , description = item["description"] , quantity=item["quantity"] , price = item["price"] , item_id = item["item_id"] %}
+    <form action="{{ url_for('save_updated_item_api') }}" method="post">
+
+      <label>title</label><br>
+      <input type="text" name="name" placeholder="{{ title }}"><br>
+      <label>description</label><br>
+      <input type="text" name="description" placeholder="{{ description }}"><br>
+      <label>quantity</label><br>
+      <input type="text" name="quantity" placeholder="{{ quantity }}"><br>
+      <label>price</label><br>
+      <input type="text" name="price" placeholder="{{ price }}"><br>
+      <label>item id  </label><br>
+      <input type="text" name="item_id" placeholder = {{ item_id}} ><br>
+      <input type="submit">
+
+    </form>
+{% endwith %}
+
+</body>
+</html>

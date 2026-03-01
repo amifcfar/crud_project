@@ -27,7 +27,7 @@ app = FastAPI()
 
 inventory = []
 
-tem_item_id = 1
+
 
 template_test = [{"title": "nike", "description": "puissant", "price": 2000, "quantity": 20, "item_id": 1}]
 
@@ -128,9 +128,10 @@ async def add_item_api(request: Request):
     print("---------------In add_item_api-------------")
     return templates.TemplateResponse(request = request, name= "items/add_item.html", context = {"template_test": template_test})
 @app.post("/api/v2/items/save/")
-async def save_item_api(request: Request, name: str =Form() , price: str = Form() , description: str = Form() , quantity: int = Form() ):
+async def save_item_api(request: Request, name: str =Form() , price: str = Form() , description: str = Form() , quantity: int = Form() , item_id: int | None = Form(...)):
 
     print("---------------In save_item_api-------------")
+    temp_item_id = len(template_test) + 1
     if request.method == "POST":
         try:
             print(f"the request method is {request.method}")
@@ -138,11 +139,64 @@ async def save_item_api(request: Request, name: str =Form() , price: str = Form(
             print(f"----------the item price is : {price}")
             print(f"----------the item description is : {description}")
             print(f"----------the item quantity is : {quantity}")
+            new_item = dict(title=name, description=description, price=price, quantity=quantity, item_id=temp_item_id)
+
+            template_test.append(new_item)
+            print("the item was not found in the inventory. It was added------------")
+            print(f"the size of the inventory is now ------------------ {len(template_test)}")
+
+            return RedirectResponse("/api/v2/items/", status_code=303)
         except :
             return {"message": "Error with the form data"}
-        #save the newly added item to the inventory
-       # template_test.append(dict(title=name, description=description, price=price, quantity=quantity, item_id = tem_item_id))
+
+
+
+@app.get("/api/v2/items/update/{item_id}")
+async def update_item_api(request: Request, item_id: int ):
+    print("---------------In update_item_api-------------")
+    try:
+
+        for item in template_test:
+            if item_id == item["item_id"]:
+                print(f"the request method is {request.method}")
+                print(f"----------the item title is : {item["title"]}")
+                print(f"the item description is : {item["description"]}")
+                print(f"the item price is : {item["price"]}")
+                print(f"the item quantity is : {item["quantity"]}")
+                return templates.TemplateResponse(request= request, name= "items/update_item_api.html", context = {"item": item})
+
+    except :
+        return {"message": "Error with the form data"}
+
     return RedirectResponse("/api/v2/items/", status_code=303)
+
+
+@app.post("/api/v2/items/update/save")
+async def save_updated_item_api(request: Request, item_id: int | None = Form(), name: str = Form(...), description: str = Form(...), quantity: int = Form(...), price: int = Form(...)):
+    print("---------------In save updated_item_api-------------")
+    try:
+        print(f"the request method is {request.method}")
+        print(f"----------the item title is : {name}")
+        print(f"the item description is : {description}")
+        print(f"the item price is : {quantity}")
+        print(f"the item item_id is : {item_id}")
+        print(f"the item price is : {price}")
+
+        for item in template_test:
+            if item["item_id"] == item_id:
+                item["title"] = name
+                item["description"] = description
+                item["price"] = price
+                item["quantity"] = quantity
+                print(f"the item was found and updated. The inventory size is ------------------ {len(template_test)}")
+                return RedirectResponse("/api/v2/items/", status_code=303)
+
+    except :
+        return {"message": "Error with the form data"}
+
+
+
+
 
 
 
