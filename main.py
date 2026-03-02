@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException,Request,Form
+from fastapi import FastAPI, HTTPException, Request, Form, Depends, Query
 
 from typing import Annotated
 
@@ -8,9 +8,27 @@ from fastapi.responses import RedirectResponse, HTMLResponse
 
 from pydantic import BaseModel
 
+from sqlmodel import Field, Session, SQLModel, create_engine, select
+
 #templating object
 
+sqlite_file_name = "database.db"
+sqlite_url = f"sqlite:///{sqlite_file_name}"
+
+connect_args = {"check_same_thread": False}
+engine = create_engine(sqlite_url, connect_args=connect_args)
+
 templates = Jinja2Templates(directory="templates")
+
+
+
+
+class Item(SQLModel, table=True):
+    id : int = Field(default=None, primary_key=True)
+    title: str = Field(default=None)
+    description: str = Field(default=None)
+    price: float = Field(default=None)
+    quantity: int = Field(default=None)
 
 
 
@@ -24,6 +42,28 @@ class Item(BaseModel):
 
 
 app = FastAPI()
+
+
+#this ensure one session will be used per request
+def get_session():
+    with Session(engine) as session:
+        yield session
+
+#Create tables in the database
+def create_db_and_tables():
+    SQLModel.metadata.create_all(engine)
+
+#create table and database on start
+@app.on_event("startup")
+def on_startup():
+    create_db_and_tables()
+
+
+SessionDep = Annotated[Session, Depends(get_session)]
+
+
+
+
 
 inventory = []
 
@@ -193,6 +233,32 @@ async def save_updated_item_api(request: Request, item_id: int | None = Form(), 
 
     except :
         return {"message": "Error with the form data"}
+
+
+
+
+@app.post("/api/v3/items/")
+async def post_items_api_v3(session: SessionDep , item: Item) -> Item:
+    print("---------------In post_items_api_v3-------------")
+    session.add(item)
+    session.commit()
+    return item
+
+
+@app.get("/api/v3/items/")
+async def get_items_api_v3(session: SessionDep , offset : int = 0 , limit : Annotated[ int , Query(le = 100 )] = 100 ) -> list[Item]:
+    print("---------------In get_items_api_v3-------------")
+    items = session.exec(select(Item).offset(offset).limit(limit).all()).all()
+    return items
+
+@app.get("/api/v3/items/{id}")
+async def get_an_item_api_v3(id: int) -> Item:
+    print("---------------In get_items_api_v3-------------")
+
+
+
+
+
 
 
 
