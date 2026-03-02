@@ -236,7 +236,7 @@ async def save_updated_item_api(request: Request, item_id: int | None = Form(), 
 
 
 
-
+#add a new item
 @app.post("/api/v3/items/")
 async def post_items_api_v3(session: SessionDep , item: Item) -> Item:
     print("---------------In post_items_api_v3-------------")
@@ -244,18 +244,33 @@ async def post_items_api_v3(session: SessionDep , item: Item) -> Item:
     session.commit()
     return item
 
-
+#Get a list of item from the store
 @app.get("/api/v3/items/")
 async def get_items_api_v3(session: SessionDep , offset : int = 0 , limit : Annotated[ int , Query(le = 100 )] = 100 ) -> list[Item]:
     print("---------------In get_items_api_v3-------------")
     items = session.exec(select(Item).offset(offset).limit(limit).all()).all()
     return items
 
+#Get item by id
 @app.get("/api/v3/items/{id}")
 async def get_an_item_api_v3(session:SessionDep, id: int) -> Item:
     print("---------------In get_items_api_v3-------------")
     item = session.exec(select(Item).where(Item.id == id)).first()
+
     return item
+
+@app.delete("/api/v3/items/delete/")
+async def delete_an_item_api_v3(session: SessionDep , id: int) -> Item:
+    print("---------------In delete_an_item_api_v3-------------")
+    item = session.delete(select(Item).where(Item.id == id))
+    #get the item first
+    #item = session.get(Item, id)
+    #then delete the item
+    #session.delete(item)
+    session.commit()
+    return {"message": "Item deleted"}
+
+
 
 
 
