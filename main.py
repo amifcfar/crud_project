@@ -252,8 +252,12 @@ async def get_items_api_v3(session: SessionDep , offset : int = 0 , limit : Anno
     return items
 
 @app.get("/api/v3/items/{id}")
-async def get_an_item_api_v3(id: int) -> Item:
+async def get_an_item_api_v3(session:SessionDep, id: int) -> Item:
     print("---------------In get_items_api_v3-------------")
+    item = session.exec(select(Item).where(Item.id == id)).first()
+    return item
+
+
 
 
 
