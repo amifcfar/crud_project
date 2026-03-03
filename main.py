@@ -262,11 +262,11 @@ async def get_an_item_api_v3(session:SessionDep, id: int) -> Product:
 @app.delete("/api/v3/items/delete/")
 async def delete_an_item_api_v3(session: SessionDep , id: int) -> Product:
     print("---------------In delete_an_item_api_v3-------------")
-    item = session.delete(select(Product).where(Item.id == id))
+   # item = session.delete(select(Product).where(Item.id == id))
     #get the item first
-    #item = session.get(Item, id)
+    item = session.get(Product, id)
     #then delete the item
-    #session.delete(item)
+    session.delete(item)
     session.commit()
     return {"message": "Item deleted"}
 
