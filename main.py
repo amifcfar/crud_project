@@ -248,7 +248,7 @@ async def post_items_api_v3(session: SessionDep , item: Product) -> Product:
 @app.get("/api/v3/items/")
 async def get_items_api_v3(session: SessionDep , offset : int = 0 , limit : Annotated[ int , Query(le = 100 )] = 100 ) -> list[Product]:
     print("---------------In get_items_api_v3-------------")
-    items = session.exec(select(Product).offset(offset).limit(limit).all()).all()
+    items = session.exec(select(Product).offset(offset).limit(limit)).all()
     return items
 
 #Get item by id
