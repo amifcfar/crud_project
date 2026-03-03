@@ -256,6 +256,8 @@ async def get_items_api_v3(session: SessionDep , offset : int = 0 , limit : Anno
 async def get_an_item_api_v3(session:SessionDep, id: int) -> Product:
     print("---------------In get_items_api_v3-------------")
     item = session.exec(select(Product).where(Product.id == id)).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
 
     return item
 
@@ -265,10 +267,28 @@ async def delete_an_item_api_v3(session: SessionDep , id: int) -> Product:
    # item = session.delete(select(Product).where(Item.id == id))
     #get the item first
     item = session.get(Product, id)
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
     #then delete the item
     session.delete(item)
     session.commit()
     return {"message": "Item deleted"}
+@app.post("/api/v3/items/update/", response_model=Product)
+async def update_item_api_v3(session : SessionDep , item : Product) :
+    print("---------------In update_item_api_v3-------------")
+    product = session.get(Product, item.id)
+    if not product:
+        raise HTTPException(status_code=404, detail="Item not found")
+    #update the product
+    product.title = item.title
+    product.description = item.description
+    product.price = item.price
+    product.quantity = item.quantity
+    session.add(product)
+    session.commit()
+    return item
+
+
 
 
 
