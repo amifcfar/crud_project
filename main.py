@@ -1,5 +1,7 @@
 from fastapi import FastAPI, HTTPException, Request, Form, Depends, Query
 
+from fastapi.testclient import TestClient
+
 from typing import Annotated
 
 from fastapi.templating import Jinja2Templates
