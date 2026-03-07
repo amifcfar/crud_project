@@ -200,11 +200,11 @@ async def update_item_api(request: Request, item_id: int ):
 
         for item in template_test:
             if item_id == item["item_id"]:
-                print(f"the request method is {request.method}")
-                print(f"----------the item title is : {item["title"]}")
-                print(f"the item description is : {item["description"]}")
-                print(f"the item price is : {item["price"]}")
-                print(f"the item quantity is : {item["quantity"]}")
+                # print(f"the request method is {request.method}")
+                # print(f"----------the item title is : {item["title"]}")
+                # print(f"the item description is : {item["description"]}")
+                # print(f"the item price is : {item["price"]}")
+                # print(f"the item quantity is : {item["quantity"]}")
                 return templates.TemplateResponse(request= request, name= "items/update_item_api.html", context = {"item": item})
 
     except :
