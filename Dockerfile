@@ -1,21 +1,30 @@
 # 1. Use an official lightweight image
 FROM python:3.12-slim
 
+# Create a non-root user and group
+RUN groupadd -r appuser && useradd -r -g appuser -m appuser
+
 # 2. Set a working directory
-WORKDIR /app
+WORKDIR /home/appuser/app
+
+# Copy all files from the current directory into the container
+COPY --chown=appuser:appuser . .
+
+# Switch to the non-root user
+USER appuser
 
 # 3. Copy dependency files first (cache layer)
-COPY requirements.txt .
+#COPY requirements.txt .
 
 # 4. Install dependencies securely
 RUN pip install --no-cache-dir -r requirements.txt
 
 # 5. Copy app code
-COPY app/ .
+#COPY . .
 
 # 6. Run as non-root user
-RUN useradd -m myuser
-USER myuser
+#RUN useradd -m phoenix
+#USER phoenix
 
 # 7. Expose port and define entrypoint
 EXPOSE 8000
