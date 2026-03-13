@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, HTTPException, Request, Form, Depends, Query
 
 from fastapi.testclient import TestClient
@@ -56,9 +58,12 @@ def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
 
 #create table and database on start
-@app.on_event("startup")
-def on_startup():
+#@app.on_event("startup")
+@asynccontextmanager
+def on_startup(app : FastAPI):
     create_db_and_tables()
+    yield
+    print("Database closed")
 
 
 SessionDep = Annotated[Session, Depends(get_session)]
